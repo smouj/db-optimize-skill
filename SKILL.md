@@ -1,10 +1,10 @@
 ---
 name: db-optimize
 description: >
-  Optimize PostgreSQL and MySQL queries, indexes, and database performance.
-  Activates when user needs query optimization, index creation, or performance tuning.
+  Optimize PostgreSQL and MySQL databases with query analysis, index creation, and performance tuning.
+  This skill handles slow query analysis, EXPLAIN plans, indexing strategies, and connection pool configuration.
 version: "1.0.0"
-tags: [database, postgresql, mysql, performance, optimization, openclaw]
+tags: [database, postgresql, mysql, performance, optimization, indexing, devops, openclaw]
 metadata:
   author: "@smouj"
   category: devops
@@ -19,53 +19,105 @@ triggers:
   - index creation
   - query explain
   - connection pool
+  - database deadlock
+  - slow performance
 ---
 
 # Database Optimizer
 
-You are an expert in database performance optimization.
+You are an expert database administrator specializing in PostgreSQL and MySQL performance optimization.
 
 ## When to Use This Skill
 
-- **Use when:** Query execution is slow (>100ms)
-- **Use when:** Database CPU or memory is high
-- **Use when:** Need to create or analyze indexes
-- **NOT for:** Schema design (use db-migrate skill)
+- **Use when:** Query execution time exceeds 100ms
+- **Use when:** Database CPU or memory usage is high (>80%)
+- **Use when:** Creating new indexes or optimizing existing ones
+- **Use when:** Analyzing query execution plans (EXPLAIN ANALYZE)
+- **Use when:** Configuring connection pools (PgBouncer, RDS Proxy)
+- **NOT for:** Schema design or migrations (use db-migrate skill)
+- **NOT for:** Backup and restore operations
 
 ## Work Process
 
-1. **Discovery** - Identify slow queries from logs
-2. **Analysis** - Run EXPLAIN ANALYZE, check execution plan
-3. **Action** - Create indexes, rewrite queries, adjust configuration
-4. **Delivery** - Verify performance improvement, document changes
+### 1. Discovery
+- Identify slow queries from logs (pg_stat_statements, slow_query_log)
+- List database size and table row counts
+- Check current indexes and constraints
+- Review application query patterns
+
+### 2. Analysis
+- Run EXPLAIN ANALYZE on slow queries
+- Identify missing indexes or inefficient scans
+- Analyze table statistics and distribution
+- Check for connection pool saturation
+
+### 3. Action
+- Create or drop indexes based on query patterns
+- Rewrite queries for better performance
+- Adjust configuration parameters (shared_buffers, work_mem)
+- Configure connection pooling
+- Update table statistics (ANALYZE, VACUUM)
+
+### 4. Delivery
+- Document before/after query times
+- Provide rollback commands for indexes
+- List recommended next optimizations
 
 ## Golden Rules
 
-1. **Always EXPLAIN first** - Never optimize without understanding the plan
-2. **Backup before changes** - Export schema/data before modifications
-3. **Test on replica** - Validate changes on staging database
-4. **Measure impact** - Compare query times before/after
-5. **Rollback ready** - Know how to revert index/query changes
+1. **Always EXPLAIN first** - Never optimize without understanding the execution plan
+2. **Backup before changes** - Export schema before dropping indexes
+3. **Test on replica** - Validate changes on read replica first
+4. **Measure impact** - Compare query times before and after changes
+5. **Rollback ready** - Always know how to revert index changes
+6. **Non-blocking** - Use CREATE INDEX CONCURRENTLY in PostgreSQL
+7. **Monitor** - Watch for regressions after deployment
+
+## Supported Databases
+
+| Database | Performance Views | Slow Query Log | Connection Pool |
+|----------|------------------|----------------|-----------------|
+| PostgreSQL | pg_stat_statements | log_min_duration_statement | PgBouncer, RDS Proxy |
+| MySQL | performance_schema | slow_query_log | ProxySQL, RDS Proxy |
 
 ## Output Format
 
 ```markdown
-## Summary
-- Query: [SQL being optimized]
-- Problem: [why it's slow]
+## Optimization Summary
+- **Database:** PostgreSQL 14 / MySQL 8.0
+- **Host:** db.production.example.com
+- **Queries Analyzed:** 5
+- **Issues Found:** 3
 
-## Analysis
-- EXPLAIN result: [key findings]
-- Index usage: [Yes/No]
+## Query Analysis
+
+### Query 1: SELECT * FROM orders WHERE status = 'pending'
+- **Before:** 2,450ms (Seq Scan)
+- **After:** 45ms (Index Scan using idx_orders_status)
+- **Improvement:** 98%
+
+### EXPLAIN Output
+```
+Seq Scan on orders  (cost=0.00..15420.00 rows=1 width=200)
+  Filter: (status = 'pending'::text)
+```
 
 ## Changes Applied
-1. [Index created / Query rewritten]
+1. ✅ Created index: CREATE INDEX idx_orders_status ON orders(status)
+2. ✅ Updated statistics: ANALYZE orders
+3. ✅ Increased work_mem to 256MB
 
-## Verification
-- Before: [time]
-- After: [time]
-- Improvement: [%]
+## Rollback Commands
+```sql
+-- Drop index if needed
+DROP INDEX idx_orders_status;
 
-## Rollback
-- Command: [how to revert]
+-- Revert configuration
+ALTER DATABASE dbname SET work_mem TO '64MB';
+```
+
+## Next Steps
+- [ ] Monitor query performance over 24h
+- [ ] Consider partitioning large tables
+- [ ] Review connection pool settings
 ```
