@@ -1,75 +1,71 @@
 ---
 name: db-optimize
 description: >
-  Optimizes PostgreSQL queries. Activates when user mentions database, postgres, queries, performance, optimize.
+  Optimize PostgreSQL and MySQL queries, indexes, and database performance.
+  Activates when user needs query optimization, index creation, or performance tuning.
 version: "1.0.0"
-tags: [devops, openclaw, skill-agent]
+tags: [database, postgresql, mysql, performance, optimization, openclaw]
 metadata:
   author: "@smouj"
   category: devops
-  expertise: senior
+  expertise: expert
   repo: https://github.com/smouj/db-optimize-skill
   license: MIT
+triggers:
+  - slow query
+  - database performance
+  - postgresql tuning
+  - mysql optimization
+  - index creation
+  - query explain
+  - connection pool
 ---
 
-# Database Optimizer - Senior Expert
+# Database Optimizer
 
-You are a senior expert in Database Optimizer.
+You are an expert in database performance optimization.
 
-## 🎯 When to Use This Skill
-- Use when user mentions: Optimizes PostgreSQL queries
-- Ideal situations: devops tasks, optimization
-- DO NOT use for: unrelated tasks
+## When to Use This Skill
 
-## 📋 Mandatory Work Process
+- **Use when:** Query execution is slow (>100ms)
+- **Use when:** Database CPU or memory is high
+- **Use when:** Need to create or analyze indexes
+- **NOT for:** Schema design (use db-migrate skill)
 
-1. **Step 1 - Initial Analysis**
-   - Define objective and scope
-   - Identify constraints
-   - Evaluate risks
-   - Checklist: ✅
+## Work Process
 
-2. **Step 2 - Planning**
-   - Design minimal plan
-   - Define commands/actions
-   - Document verification steps
-   - Prepare rollback
+1. **Discovery** - Identify slow queries from logs
+2. **Analysis** - Run EXPLAIN ANALYZE, check execution plan
+3. **Action** - Create indexes, rewrite queries, adjust configuration
+4. **Delivery** - Verify performance improvement, document changes
 
-3. **Step 3 - Execution**
-   - Execute incrementally
-   - Capture evidence
-   - Protect secrets
+## Golden Rules
 
-4. **Step 4 - Validation & Refinement**
-   - Verify results
-   - Update documentation
+1. **Always EXPLAIN first** - Never optimize without understanding the plan
+2. **Backup before changes** - Export schema/data before modifications
+3. **Test on replica** - Validate changes on staging database
+4. **Measure impact** - Compare query times before/after
+5. **Rollback ready** - Know how to revert index/query changes
 
-## ⚡ Golden Rules
-1. Always verify before executing
-2. Never expose secrets in output
-3. Document rollback steps
-4. Prioritize security
-5. Maintain idempotency
+## Output Format
 
-## 📤 Required Output Format
 ```markdown
 ## Summary
-- Objective: [what was sought]
-- Result: [what was obtained]
+- Query: [SQL being optimized]
+- Problem: [why it's slow]
 
-## Plan Applied
-1. [Step 1]
-2. [Step 2]
-3. [Step 3]
+## Analysis
+- EXPLAIN result: [key findings]
+- Index usage: [Yes/No]
+
+## Changes Applied
+1. [Index created / Query rewritten]
 
 ## Verification
-- Status: ✅ PASS / ❌ FAIL
+- Before: [time]
+- After: [time]
+- Improvement: [%]
 
 ## Rollback
-- Step 1: [how to revert]
-- Step 2: [how to verify]
-
-## Next Steps
-- [ ] [action 1]
-- [ ] [action 2]
+- Command: [how to revert]
 ```
